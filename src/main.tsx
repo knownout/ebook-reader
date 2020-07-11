@@ -10,6 +10,10 @@ window.addEventListener("load", async () => {
 	const dialog = document.createElement("input");
 	dialog.type = "file";
 
-	dialog.onchange = () => new BookParser().loadBookData(dialog.files).then(console.log);
+	dialog.onchange = () => {
+		new BookParser().loadBookData(dialog.files).then(console.log);
+		dialog.remove();
+	};
+
 	window.onclick = () => dialog.click();
 });
