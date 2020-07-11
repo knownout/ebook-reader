@@ -1,27 +1,32 @@
 import React from "react";
-import { selectElement, Base64Image } from "./utils";
+import { Base64Image } from "./utils";
 
 interface Book {
 	metadata: {
 		name: string;
-		author?: string;
+		author: string | null;
 
-		releaseDate?: Date;
-		annotation?: string[];
+		releaseDate: Date | null;
+		annotation: string[] | null;
 
-		genres?: string[];
-		keywords?: string[];
-		language?: string;
+		genres: string[] | null;
+		keywords: string[] | null;
+		language: string | null;
 
-		cover: Base64Image;
+		cover?: Base64Image | null;
+		sequence?: {
+			name: string;
+			number: number | null;
+		};
 	};
+
+	chapters: {
+		title: string;
+		content: string;
+	}[];
 }
 
-window.addEventListener("load", () => {
-	const parser = new BookParser();
-});
-
-class BookParser {
+export class BookParser {
 	private readonly EXCEPTIONS = {
 		FILE: "Exception while parsing selected file",
 		EXTENSION: "Selected file extension not allowed"
