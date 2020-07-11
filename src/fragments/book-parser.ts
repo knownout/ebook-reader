@@ -1,6 +1,8 @@
 import { Base64Image, readXMLFile } from "./utils";
 import XmlTree from "./xml-tree";
 
+import { loadAsync } from "jszip";
+
 interface Book {
 	metadata: {
 		name: string;
@@ -29,7 +31,10 @@ interface Book {
 export class BookParser {
 	private readonly EXCEPTIONS = {
 		FILE: "Exception while parsing selected file",
-		EXTENSION: "Selected file extension not allowed"
+		EXTENSION: "Selected file extension not allowed",
+		ARCHIVE: "Exception while unpacking archive",
+		ARCHIVE_FILE: "Required file not found in unpacked archive",
+		ELEMENT: "Required element not found in the xml document"
 	};
 
 	/**
@@ -58,7 +63,87 @@ export class BookParser {
 	 * Parsing files with the epub and mobi extensions
 	 * @param file file to be parsed
 	 */
-	private async parse_epubFile (file: File) {}
+	private async parse_epubFile (file: File) {
+		const bookData: Partial<Book> = {};
+
+		const zipFile = await loadAsync(file).catch(() => {
+			throw new Error(this.EXCEPTIONS.ARCHIVE);
+		});
+
+		let rootPath = String();
+		Object.keys(zipFile.files).forEach(filename => {
+			if (filename.includes("content.opf"))
+				rootPath = filename.replace(/\\/g, "/").split("/").slice(0, -1).join("/");
+		});
+
+		if (!rootPath) throw new Error(this.EXCEPTIONS.FILE);
+
+		const contentZipFile = zipFile.file(`${rootPath}/content.opf`);
+		if (!contentZipFile) throw new Error(this.EXCEPTIONS.ARCHIVE_FILE);
+
+		const xmlContentFile = await readXMLFile(await contentZipFile.async("blob"));
+		const xmlTree = new XmlTree(xmlContentFile);
+
+		const bookTitle = xmlTree.tagName("dc:title").catch(null).html();
+		if (!bookTitle) throw new Error(this.EXCEPTIONS.ELEMENT);
+
+		const metadataElement = xmlTree.select("metadata").catch(null).entry();
+		if (!metadataElement) throw new Error(this.EXCEPTIONS.ELEMENT);
+
+		const xmlMetadata = new XmlTree(metadataElement);
+		let releaseDate = xmlMetadata
+			.select(`meta[name="FB2.book-info.date"]`)
+			.catch(`meta[name="FB2.document-info.date"]`)
+			.catch(null)
+			.attribute("content");
+
+		if (!releaseDate) releaseDate = xmlMetadata.tagName("dc:date").catch(null).html();
+		const annotation = xmlMetadata.tagName("dc:description").catch(null).html();
+
+		bookData.metadata = {
+			name: bookTitle,
+			author: xmlMetadata.tagName("dc:creator").catch(null).html() || null,
+
+			releaseDate: releaseDate ? new Date(releaseDate) : null,
+			annotation: annotation ? [ annotation ] : null,
+
+			genres: [], // stub
+			keywords: [], // stub
+			language: xmlMetadata.tagName("dc:language").catch(null).html() || null
+		};
+
+		const coverElementID = xmlMetadata
+			.select(`meta[name="cover"]`)
+			.catch(null)
+			.attribute("content");
+
+		if (coverElementID) {
+			const coverHref = xmlTree.select(`#${coverElementID}`).catch(null).attribute("href");
+			const coverFile = zipFile.file(`${rootPath}/${coverHref}`);
+			if (coverHref && coverFile)
+				bookData.metadata.cover = new Base64Image(await coverFile.async("base64"));
+		}
+
+		const sequenceData = xmlMetadata
+			.select(`meta[name="FB2.book-info.sequence"]`)
+			.catch(null)
+			.attribute("content");
+
+		if (sequenceData) {
+			const sequenceDataArray = sequenceData.split(";").map(e => e.trim());
+			bookData.metadata.sequence = {
+				name: sequenceDataArray[0],
+				number: 0
+			};
+
+			if (sequenceDataArray[1]) {
+				const sequenceNumber = sequenceDataArray[1].split("=")[1];
+				bookData.metadata.sequence.number = sequenceNumber ? Number(sequenceNumber) : null;
+			}
+		}
+
+		return bookData as Book;
+	}
 
 	/**
 	 * Parsing files with the fb2 extension
