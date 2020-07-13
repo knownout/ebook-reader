@@ -4,16 +4,6 @@ import "./root.less";
 import ReactDOM from "react-dom";
 import React from "react";
 
-import { BookParser } from "./fragments/book-parser";
+// import Reader from "./reader/reader";
 
-window.addEventListener("load", async () => {
-	const dialog = document.createElement("input");
-	dialog.type = "file";
-
-	dialog.onchange = () => {
-		new BookParser().loadBookData(dialog.files).then(console.log);
-		dialog.remove();
-	};
-
-	window.onclick = () => dialog.click();
-});
+// ReactDOM.render(<Reader />, document.querySelector("main#app-root"));

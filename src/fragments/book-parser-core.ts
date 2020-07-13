@@ -1,10 +1,9 @@
 import { Base64Image } from "./utils";
-import { ReactElement } from "react";
 
 /**
  * Core of the class for parsing epub, mobi and fb2 books from a file
  */
-export class BookParserCore {
+export default class BookParserCore {
 	protected readonly EXCEPTIONS = {
 		FILE: "Exception while parsing selected file",
 		EXTENSION: "Selected file extension not allowed",
@@ -60,7 +59,7 @@ export class BookParserCore {
 	}
 }
 
-export type TBookChapterData = { title: string; content: ReactElement[] };
+export type TBookChapterData = { title: string; content: string };
 export interface Book {
 	metadata: {
 		name: string;

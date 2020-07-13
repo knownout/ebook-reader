@@ -2,21 +2,14 @@ import { Base64Image, readXMLFile } from "./utils";
 import XmlTree from "./xml-tree";
 
 import { loadAsync } from "jszip";
-import { BookParserCore, Book } from "./book-parser-core";
+import BookParserCore, { Book } from "./book-parser-core";
 
 import HtmlParser from "./html-parser";
 
 /**
  * Class for parsing epub, mobi and fb2 books from a file
  */
-class Exception {
-	public readonly message: string = String();
-	constructor (...exception: string[]) {
-		this.message = exception.join(" ").trim();
-	}
-}
-
-export class BookParser extends BookParserCore {
+export default class BookParser extends BookParserCore {
 	/**
 	 * Load metadata and book chapters asynchronously from a file
 	 * @param file the file from which book data will be loaded
@@ -50,7 +43,7 @@ export class BookParser extends BookParserCore {
 
 		const containerFile = zipFile.file("META-INF/container.xml");
 		if (!containerFile)
-			throw new Exception(this.EXCEPTIONS.EBOOK_INVALID + ":", "container file not found");
+			throw new Error(this.EXCEPTIONS.EBOOK_INVALID + ": container file not found");
 
 		const xmlContainerTree = new XmlTree(await readXMLFile(await containerFile.async("blob")));
 		const opfFilePath = xmlContainerTree
@@ -59,9 +52,9 @@ export class BookParser extends BookParserCore {
 			.attribute("full-path");
 
 		if (!opfFilePath)
-			throw new Exception(
-				this.EXCEPTIONS.EBOOK_INVALID + ":",
-				"rootfile element not found in the container.xml file"
+			throw new Error(
+				this.EXCEPTIONS.EBOOK_INVALID +
+					": rootfile element not found in the container.xml file"
 			);
 
 		let rootPath = opfFilePath.replace(/\\/g, "/").split("/").slice(0, -1).join("/");
@@ -70,10 +63,7 @@ export class BookParser extends BookParserCore {
 		const opfFile = zipFile.file(opfFilePath);
 
 		if (!opfFile)
-			throw new Exception(
-				this.EXCEPTIONS.EBOOK_INVALID + ":",
-				"OPF file not found in the archive"
-			);
+			throw new Error(this.EXCEPTIONS.EBOOK_INVALID + ": OPF file not found in the archive");
 
 		const opfXmlTree = new XmlTree(await readXMLFile(await opfFile.async("blob")));
 
@@ -94,7 +84,7 @@ export class BookParser extends BookParserCore {
 				.catch(null)
 				.attribute("content");
 
-		const annotation = opfXmlTree.tagName("metadata dc:description").catch(null).html();
+		const annotation = opfXmlTree.tagName("dc:description").catch(null).html();
 		const genres = opfXmlTree
 			.tagName("dc:subject")
 			.catch(null)
@@ -113,15 +103,15 @@ export class BookParser extends BookParserCore {
 		}
 
 		bookData.metadata = {
-			name: opfXmlTree.tagName("metadata dc:title").catch(null).html() || file.name.trim(),
-			author: opfXmlTree.tagName("metadata dc:creator").catch(null).html() || null,
+			name: opfXmlTree.tagName("dc:title").catch(null).html() || file.name.trim(),
+			author: opfXmlTree.tagName("dc:creator").catch(null).html() || null,
 
 			releaseDate: releaseDate ? new Date(releaseDate) : null,
 			annotation: annotation ? [ annotation ] : null,
 
 			genres: genres[0] ? genres.map(this.parseGenres) : null,
 			keywords: [], // stub
-			language: opfXmlTree.tagName("metadata dc:language").catch(null).html() || null,
+			language: opfXmlTree.tagName("dc:language").catch(null).html() || null,
 
 			cover: bookCover
 		};
@@ -133,8 +123,10 @@ export class BookParser extends BookParserCore {
 
 		if (sequence) {
 			const parts = sequence.split(";").map(e => e.trim());
+			if (parts[1]) parts[1] = parts[1].split("=").slice(-1)[0];
+
 			const name = parts[0],
-				number = Number(parts[1] || 0);
+				number = Number(Number(parts[1]) || 1);
 
 			bookData.metadata.sequence = { name, number };
 		}
@@ -250,13 +242,15 @@ export class BookParser extends BookParserCore {
 		/*
 			Parsing book cover
 		*/
-		const coverHref = xmlTree
+		let coverHref = xmlTree
 			.select("title-info coverpage image")
 			.catch(null)
 			.attribute("l:href");
 
 		let cover = String();
-		if (coverHref && coverHref[0] == "#") {
+
+		if (coverHref) {
+			if (coverHref[0] == "#") coverHref = coverHref.slice(1);
 			const coverElement = xmlDocument.getElementById(coverHref);
 			if (coverElement) cover = coverElement.innerHTML;
 		} else cover = xmlTree.select(`*[content-type="image/jpeg"]`).catch(null).html();
@@ -291,3 +285,5 @@ export class BookParser extends BookParserCore {
 		return bookData as Book;
 	}
 }
+
+export { Book };

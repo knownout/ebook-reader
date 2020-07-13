@@ -9,7 +9,7 @@ import ReactHTMLParser from "react-html-parser";
  * @param bookLanguage language of the current book for translating 
  * automatically generated words
  */
-export default async function HtmlParser (html: string[], bookLanguage: string) {
+export default async function HtmlParser (html: string[], bookLanguage?: string | null) {
 	/*
         Asynchronous HTML string array analysis and parsing
     */
@@ -33,9 +33,9 @@ export default async function HtmlParser (html: string[], bookLanguage: string) 
 					.catch(null);
 
 				if (!xmlTree.entry()) {
-					console.warn(
-						"Inline parsing mode cannot be used with this book: chapters delimiter not found"
-					);
+					// console.warn(
+					// 	"Inline parsing mode cannot be used with this book: chapters delimiter not found"
+					// );
 
 					resolve(bookChaptersList);
 					return;
@@ -83,6 +83,8 @@ export default async function HtmlParser (html: string[], bookLanguage: string) 
 		);
 	});
 
+	if (!bookLanguage) bookLanguage = "ru";
+
 	// Function for creating a book title
 	const getTitle = (index: number) =>
 		bookLanguage == "ru" ? `Глава ${index + 1}` : `Chapter ${index + 1}`;
@@ -109,10 +111,17 @@ export default async function HtmlParser (html: string[], bookLanguage: string) 
 			let chapterTitle = String();
 
 			// Parse the contents of each paragraph element
-			chapterContents.map(e => {
+			chapterContents.forEach(e => {
 				// Remove all links from paragraph content
-				const links = new XmlTree(e).select("a").catch(null).entries();
-				links.forEach(e => (e ? e.remove() : null));
+				new XmlTree(e).select("a").catch(null).entries(e => (e ? e.remove() : null));
+
+				new XmlTree(e).select("emphasis").catch(null).entries(e => {
+					if (!e) return;
+					const em = document.createElement("em");
+					em.innerHTML = e.innerHTML;
+
+					e.replaceWith(em);
+				});
 
 				// Check if this paragraph is a title
 				let closestParent = e.closest(`[class*="title"]`);
@@ -122,9 +131,15 @@ export default async function HtmlParser (html: string[], bookLanguage: string) 
 				else chapterTextContent.push(e.innerHTML.trim());
 			});
 
+			if (!chapterTitle)
+				xmlTree
+					.select("section title")
+					.catch(null)
+					.entry(0, e => (e ? (chapterTitle = e.innerHTML) : null));
+
 			return {
 				title: chapterTitle || getTitle(index),
-				content: ReactHTMLParser(chapterTextContent.map(e => `<p>${e}</p>`).join(""))
+				content: chapterTextContent.map(e => `<p>${e}</p>`).join("")
 			} as TBookChapterData;
 		})
 		.filter(Boolean);
