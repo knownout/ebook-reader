@@ -136,39 +136,17 @@ export default class XmlTree {
 
 	/**
 	 * Method for getting an array of items from a list
-	 * @param modify function to modify each entry of the returned array
+     * @param modifyOutput function to modify each entry of the returned array
 	 */
-	entries (modify: XmlTreeFunctions.ModifyFunction): (Element | null)[];
+	entries<U> (modifyOutput?: (entry: Element, index: number) => U): U[];
 
-	/**
-	 * Method for getting an array of items from a list
-	 * @param modify function to modify each entry of the returned array
-     * @param modifyOutput function to change each item of a list
-	 */
-	entries<U> (
-		modify: XmlTreeFunctions.ModifyFunction,
-		modifyOutput?: (entry: Element) => U
-	): U[];
-
-	entries<U> (modify?: XmlTreeFunctions.ModifyFunction, modifyOutput?: (entry: Element) => U) {
+	entries<U> (modifyOutput?: (entry: Element, index: number) => U) {
 		// If there is an unhandled exception, throw an error
 		if (this.exception) throw new Error("Uncaught exception while selecting elements");
 
 		// If the list of items is null, return an array with a null value
 		if (this.elements === null) return [ null ];
 		let entries = Array.from(this.elements);
-
-		// If a modification function is provided, use it as an argument
-		// to Array.map to modify the entries array
-		if (modify) {
-			entries = entries.map(entry => {
-				let modified = modify(entry);
-				if (modified) return modified;
-
-				this.exception = true;
-				return entry;
-			});
-		}
 
 		if (modifyOutput) return entries.map(modifyOutput);
 		return entries;
@@ -192,32 +170,14 @@ export default class XmlTree {
 	/**
 	 * Method for getting one entry from a list of entries
 	 * @param index index of an item in a list of entries
-	 * @param modify function to change the currently selected item
+	 * @param modifyOutput function to change the currently selected item
 	 * 
 	 * Based on the `XmlTree.entries` method
 	 */
-	entry (index: number, modify?: XmlTreeFunctions.ModifyFunction): Element | null;
+	entry<U> (index: number, modifyOutput: (entry: Element) => U): U;
 
-	/**
-	 * Method for getting one entry from a list of entries
-	 * @param index index of an item in a list of entries
-	 * @param modify function to change the currently selected item
-	 * @param modifyOutput function to change currently selected item
-	 * 
-	 * Based on the `XmlTree.entries` method
-	 */
-	entry<U> (
-		index: number,
-		modify: XmlTreeFunctions.ModifyFunction,
-		modifyOutput: (entry: Element) => U
-	): U;
-
-	entry<U> (
-		index = 0,
-		modify?: XmlTreeFunctions.ModifyFunction,
-		modifyOutput?: (entry: Element) => U
-	): U {
-		let entry: any = this.entries(modify || null)[index];
+	entry<U> (index = 0, modifyOutput?: (entry: Element) => U): U {
+		let entry: any = this.entries()[index];
 
 		// If an output modification function is provided, execute it and
 		// use the result of the execution as a entry
@@ -243,24 +203,8 @@ export default class XmlTree {
 	 */
 	html (index: number, modifyHTML: XmlTreeFunctions.ModifyTextFunction | null): string;
 
-	/**
-	 * Method for getting parsed innerHTML of a specific element in a list of entries
-	 * @param index index of an item in a list of entries
-	 * @param modifyHTML function for modification the resulting innerHTML
-	 * @param modify function to change the currently selected item
-	 */
-	html (
-		index: number,
-		modifyHTML: XmlTreeFunctions.ModifyTextFunction | null,
-		modify: XmlTreeFunctions.ModifyFunction
-	): string;
-
-	html (
-		index = 0,
-		modifyHTML?: XmlTreeFunctions.ModifyTextFunction | null,
-		modify?: XmlTreeFunctions.ModifyFunction
-	) {
-		const entry = this.entry(index, modify);
+	html (index = 0, modifyHTML?: XmlTreeFunctions.ModifyTextFunction | null) {
+		const entry = this.entry(index);
 		let html = entry ? entry.innerHTML : String();
 
 		if (modifyHTML) html = modifyHTML(html);
@@ -306,17 +250,15 @@ export default class XmlTree {
 	attribute (
 		name: string,
 		index: number,
-		modifyOutput: XmlTreeFunctions.ModifyTextFunction | null,
-		modify: XmlTreeFunctions.ModifyFunction
+		modifyOutput: XmlTreeFunctions.ModifyTextFunction | null
 	): string | null;
 
 	attribute (
 		name: string,
 		index = 0,
-		modifyOutput?: XmlTreeFunctions.ModifyTextFunction | null,
-		modify?: XmlTreeFunctions.ModifyFunction
+		modifyOutput?: XmlTreeFunctions.ModifyTextFunction | null
 	) {
-		const entry = this.entry(index, modify);
+		const entry = this.entry(index);
 		if (!entry) return null;
 
 		let attribute = entry.getAttribute(name);

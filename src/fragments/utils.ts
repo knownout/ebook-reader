@@ -21,12 +21,12 @@ async function readXMLFile (file: Blob, encoding = "UTF-8") {
 	let xmlDocument = await readWithEncoding(encoding);
 	if ("xmlEncoding" in xmlDocument) {
 		const xmlEncoding = (xmlDocument as any).xmlEncoding;
-		if (xmlEncoding != encoding) xmlDocument = await readWithEncoding(xmlEncoding);
+		if (xmlEncoding && xmlEncoding.toLowerCase() != encoding.toLowerCase())
+			xmlDocument = await readWithEncoding(xmlEncoding);
 	}
 
 	return xmlDocument;
 }
-
 class Base64Image {
 	public readonly imageType: string = "jpeg";
 	public readonly base64: string;
