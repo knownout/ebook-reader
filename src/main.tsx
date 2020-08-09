@@ -1,11 +1,9 @@
 import "normalize.css";
 import "./root.less";
-import BookParser from "./fragments/book-parser";
 
-window.addEventListener("load", async () => {
-	const dialog = document.createElement("input");
-	dialog.type = "file";
+import ReactDOM from "react-dom";
+import React from "react";
 
-	dialog.onchange = () => new BookParser().loadBookData(dialog.files).then(console.log);
-	window.onclick = () => dialog.click();
-});
+// import Reader from "./reader/reader";
+
+// ReactDOM.render(<Reader />, document.querySelector("main#app-root"));
