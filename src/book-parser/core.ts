@@ -1,8 +1,9 @@
-import JSZip, { loadAsync } from "jszip";
-import { CompressedXMLFileOpenException, FileOpenException } from "../libs/exceptions";
-import { $ } from "../libs/htmltool";
+import JSZip from "jszip";
+import { CompressedXMLFileOpenException } from "../libs/exceptions";
+import { getCleanText, TNCXChapterData } from "../libs/utils";
+import { $ } from "../libs/xmltool";
 
-class BookParserCore {
+export default class BookParserCore {
 	protected readonly zipFile: Promise<JSZip>;
 	private readonly defaultMetaPath = "META-INF/container.xml";
 
@@ -17,7 +18,7 @@ class BookParserCore {
      * @returns DOM tree of the selected file
      * @throws CompressedXMLFileOpenException if file does not exist or is corrupted
      */
-	private async openCompressedXMLFile (zipFile: JSZip, path: string) {
+	protected async openCompressedXMLFile (zipFile: JSZip, path: string) {
 		const file = zipFile.file(path);
 
 		if (!file) throw new CompressedXMLFileOpenException();
@@ -47,11 +48,11 @@ class BookParserCore {
 		const [ metadata, manifest, spine ] = $(content.querySelector("package")).find("metadata", "manifest", "spine");
 
 		// Title of the e-book
-		const title = metadata.find("title")[0].obj.innerHTML;
+		const title = getCleanText(metadata.find("title")[0].obj.innerHTML);
 
 		// Additional e-book data, may be blank
-		const description = metadata.search("description")[0].obj.innerHTML,
-			author = metadata.search("creator").map(e => e.obj.innerHTML),
+		const description = getCleanText(metadata.search("description")[0].obj.innerHTML),
+			author = metadata.search("creator").map(e => getCleanText(e.obj.innerHTML)),
 			coverPath = metadata.search(`meta[name="cover"]`)[0].attribute("content");
 
 		// Get manifest data as a dictionary of identifiers and links
@@ -79,26 +80,33 @@ class BookParserCore {
 
 		return {
 			metadata: metadataObject,
-			bookDataOrder
+			bookDataOrder,
+			ncxChapterDataFile: manifestDataDict["ncx"]
 		};
 	}
-}
 
-export default class BookParser extends BookParserCore {
-	public constructor (file: File | FileList | null) {
-		// Verifying and converting the retrieved file
-		if (!file) throw new FileOpenException();
-		else if (file instanceof FileList) {
-			if (file.length < 1) throw new FileOpenException();
-			super(loadAsync(file[0]));
-		} else super(loadAsync(file));
-	}
+	/**
+     * Method for processing the e-book ncx chapters data file
+     * @param path location of the ncx file
+     * @returns ncx file data
+     */
+	protected async processNCXChapterDataFile (path: string): Promise<TNCXChapterData[]> {
+		const zipFile = await this.zipFile;
 
-	// Stub for the method of opening an e-book
-	public async openBook () {
-		const contentFilePath = await this.processContainerFile();
-		const bookData = await this.processContentFile(contentFilePath);
+		const nxcFile = await this.openCompressedXMLFile(zipFile, path);
+		const navPointsList = $(nxcFile.querySelector("navMap")).find("navPoint");
 
-		console.log(bookData);
+		let ncxChaptersData: TNCXChapterData[] = [];
+
+		navPointsList.forEach(navPoint => {
+			const playOrder = Number.parseInt(navPoint.attribute("playOrder"));
+			const text = getCleanText(navPoint.find("navLabel")[0].obj.innerHTML);
+
+			const fileLocation = navPoint.find("content")[0].attribute("src");
+			ncxChaptersData.push({ playOrder, text, fileLocation });
+		});
+
+		ncxChaptersData = ncxChaptersData.sort((a, b) => (a.playOrder > b.playOrder ? 1 : -1));
+		return ncxChaptersData;
 	}
 }

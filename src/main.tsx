@@ -3,8 +3,8 @@ import "./root.less";
 
 import ReactDOM from "react-dom";
 import React from "react";
-import { $ } from "./libs/htmltool";
-import BookParser from "./book-parser/core";
+import { $ } from "./libs/xmltool";
+import BookParser from "./book-parser/parser";
 
 interface AppState {}
 interface AppProps {}
