@@ -4,7 +4,6 @@ import "./root.less";
 import ReactDOM from "react-dom";
 import React from "react";
 import { $ } from "./libs/htmltool";
-import { CompressedXMLFileOpenException } from "./libs/exceptions";
 import BookParser from "./book-parser/core";
 
 interface AppState {}
