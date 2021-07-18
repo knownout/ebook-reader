@@ -13,7 +13,7 @@
         "module": "CommonJS",
         "lib": [
             "DOM",
-            "ES2020"
+            "ES2020",
         ],
         "allowJs": true,
         // "checkJs": true,

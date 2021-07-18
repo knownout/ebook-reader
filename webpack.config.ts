@@ -41,12 +41,7 @@ module.exports = {
 		rules: [
 			{
 				test: /\.less$/g,
-				loaders: [
-					MiniCssExtractPlugin.loader,
-					"css-loader",
-					"postcss-loader",
-					"less-loader"
-				]
+				loaders: [ MiniCssExtractPlugin.loader, "css-loader", "postcss-loader", "less-loader" ]
 			},
 			{ test: /\.tsx?$/, loader: "ts-loader", exclude: resolve("tests") },
 			{
@@ -99,9 +94,7 @@ module.exports = {
 				vendor: {
 					test: /[\\/]node_modules[\\/]/,
 					name (module: any) {
-						const packageName = module.context.match(
-							/[\\/]node_modules[\\/](.*?)([\\/]|$)/
-						)[1];
+						const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
 						return `module~${packageName.replace("@", "~")}`;
 					}
 				}
@@ -123,10 +116,10 @@ function defaultServerConfiguration ({
 	contentBase = null as string | null,
 	https = false
 }) {
-	const certificatesPath = "C:\\Users\\knownOut\\.certificates";
+	const certificatesPath = "C:\\Users\\knownOut\\.cert";
 	const httpsConfiguration = {
-		key: readFileSync(`${certificatesPath}\\localhost-key.pem`, "utf8"),
-		cert: readFileSync(`${certificatesPath}\\localhost.pem`, "utf8")
+		key: readFileSync(`${certificatesPath}\\localhost+4-key.pem`, "utf8"),
+		cert: readFileSync(`${certificatesPath}\\localhost+4.pem`, "utf8")
 	};
 
 	const configurationObject = {
