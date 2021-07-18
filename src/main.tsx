@@ -4,6 +4,8 @@ import "./root.less";
 import ReactDOM from "react-dom";
 import React from "react";
 import { $ } from "./libs/htmltool";
+import { CompressedXMLFileOpenException } from "./libs/exceptions";
+import BookParser from "./book-parser/core";
 
 interface AppState {}
 interface AppProps {}
@@ -11,7 +13,6 @@ class App extends React.Component<AppProps, AppState> {
 	public readonly state: AppState = {};
 	constructor (props: AppProps) {
 		super(props);
-
 		this.onButtonClick = this.onButtonClick.bind(this);
 	}
 
@@ -27,7 +28,9 @@ class App extends React.Component<AppProps, AppState> {
 
 		input.click();
 		input.addEventListener("change", () => {
-			// pass
+			const parser = new BookParser(input.files);
+			parser.openBook();
+
 			input.remove();
 		});
 	}
