@@ -1,7 +1,7 @@
 import { loadAsync } from "jszip";
-import { FileOpenException } from "../libs/exceptions";
-import { getCleanText, TNCXChapterData } from "../libs/utils";
-import { $ } from "../libs/xmltool";
+import { FileOpenException } from "./libs/exceptions";
+import { getCleanText, TNCXChapterData } from "./libs/utils";
+import $ from "./libs/xmltool";
 import BookParserCore from "./core";
 
 export default class BookParser extends BookParserCore {

@@ -1,7 +1,7 @@
 import JSZip from "jszip";
-import { CompressedXMLFileOpenException } from "../libs/exceptions";
-import { getCleanText, TNCXChapterData } from "../libs/utils";
-import { $ } from "../libs/xmltool";
+import { CompressedXMLFileOpenException } from "./libs/exceptions";
+import { getCleanText, TNCXChapterData } from "./libs/utils";
+import $ from "./libs/xmltool";
 
 export default class BookParserCore {
 	protected readonly zipFile: Promise<JSZip>;

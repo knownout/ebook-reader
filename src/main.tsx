@@ -3,8 +3,9 @@ import "./root.less";
 
 import ReactDOM from "react-dom";
 import React from "react";
-import { $ } from "./libs/xmltool";
+import $ from "./book-parser/libs/xmltool";
 import BookParser from "./book-parser/parser";
+import { BookOpenPage } from "./user-interface/book-open";
 
 interface AppState {}
 interface AppProps {}
@@ -12,26 +13,10 @@ class App extends React.Component<AppProps, AppState> {
 	public readonly state: AppState = {};
 	constructor (props: AppProps) {
 		super(props);
-		this.onButtonClick = this.onButtonClick.bind(this);
 	}
 
 	public render () {
-		return <button onClick={this.onButtonClick}>Open E-book</button>;
-	}
-
-	private onButtonClick (): void {
-		const input = $<HTMLInputElement>("input")
-			.attribute("type", "file")
-			.attribute("accept", ".epub, .mobi")
-			.attribute("multiple", "false").obj;
-
-		input.click();
-		input.addEventListener("change", () => {
-			const parser = new BookParser(input.files);
-			parser.openBook();
-
-			input.remove();
-		});
+		return <BookOpenPage />;
 	}
 }
 

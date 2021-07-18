@@ -5,7 +5,7 @@ import { ElementQuerySelectException } from "./exceptions";
  * @param input element or key of HTMLElementTagNameMap
  * @returns wrapped html element
  */
-export function $<T extends HTMLElement> (input: keyof HTMLElementTagNameMap | Element | null) {
+export default function $<T extends HTMLElement> (input: keyof HTMLElementTagNameMap | Element | null) {
 	let element: T;
 
 	// Check input and create element if input is key of HTMLElementTagNameMap

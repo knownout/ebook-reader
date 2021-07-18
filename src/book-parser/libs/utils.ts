@@ -1,11 +1,12 @@
 const defaultExcludeTags = [ "b", "bold", "strong", "s", "u", "i" ];
+export const tagOptionsReplaceExpression = /(?<=<\w+)\s+[^>]+/gi;
 
 /**
  * A procedure that invokes a callback if the browser supports extended regex options
  * @param callback function to be called if the browser supports extended regex
  */
-const whenRegexSupported = (callback: () => any): void =>
-	'<tag ns="nf">'.replace(/(?<=<\w+)\s+[^>]+/gi, "") === "<tag>" ? callback() : null;
+export const whenRegexSupported = (callback: () => any): void =>
+	'<tag ns="nf">'.replace(tagOptionsReplaceExpression, "") === "<tag>" ? callback() : null;
 
 /**
  * Function to remove HTML tags and extra spaces from text
