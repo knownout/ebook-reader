@@ -1,9 +1,9 @@
 {
 	"name": "ebook-reader",
-	"version": "0.0.1",
-	"description": "Book reader web application for common ebook formats: fb2, epub and mobi",
+	"version": "0.2.1",
+	"description": "Free e-book reader web-based application for mobi and epub formats",
 	"main": "src/main.tsx",
-	"author": "re-knownOut <knownout@hotmail.com>",
+	"author": "re-knownout <knownout@hotmail.com>",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/enzyme": "^3.10.5",
@@ -52,11 +52,7 @@
 			"autoprefixer": {}
 		}
 	},
-	"browserslist": [
-		"last 2 versions",
-		"IE 10-11",
-		"> 0.1%"
-	],
+	"browserslist": [ "last 2 versions", "IE 10-11", "> 0.1%" ],
 	"scripts": {
 		"build": "webpack -p --mode=\"production\"",
 		"dev-server": "webpack-dev-server --mode=\"development\" --",
