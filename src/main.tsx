@@ -3,9 +3,7 @@ import "./root.less";
 
 import ReactDOM from "react-dom";
 import React from "react";
-import $ from "./book-parser/libs/xmltool";
-import BookParser from "./book-parser/parser";
-import { BookOpenPage } from "./user-interface/book-open";
+import { Reader } from "./user-interface/reader";
 
 interface AppState {}
 interface AppProps {}
@@ -16,7 +14,7 @@ class App extends React.Component<AppProps, AppState> {
 	}
 
 	public render () {
-		return <BookOpenPage />;
+		return <Reader />;
 	}
 }
 

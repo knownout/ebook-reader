@@ -1,0 +1,118 @@
+div.button-wrapper {
+	position: relative;
+	display: flex;
+
+	justify-content: center;
+	align-items: center;
+
+	width: fit-content;
+	height: fit-content;
+
+	transition: 200ms ease all;
+	color: #eee;
+
+	cursor: pointer;
+
+	div {
+		pointer-events: none;
+	}
+
+	&:hover {
+		div.button-background {
+			top: 5px;
+			left: 5px;
+		}
+		div.button {
+			background: rgba(#fff, .15);
+
+			top: -2px;
+			left: -2px;
+		}
+	}
+
+	&:active {
+		div.button-background {
+			top: 3px;
+			left: 3px;
+		}
+		div.button {
+			background: rgba(#fff, .15);
+
+			top: 0;
+			left: 0;
+		}
+	}
+
+	div.button-background {
+		position: absolute;
+		display: block;
+
+		width: 100%;
+		height: 100%;
+
+		top: 3px;
+		left: 3px;
+
+		border-radius: 4px;
+
+		background: rgba(#fff, .05);
+		transition: inherit;
+	}
+
+	div.button {
+		position: relative;
+		display: flex;
+
+		justify-content: center;
+		align-items: center;
+
+		width: fit-content;
+		height: fit-content;
+
+		padding: 10px 12px;
+		top: 0;
+		left: 0;
+
+		border-radius: 4px;
+		background: rgba(#fff, .1);
+		transition: inherit;
+
+		i {
+			position: relative;
+			display: block;
+
+			top: -1px;
+			margin-right: 8px;
+		}
+	}
+
+	&[data-error="true"] {
+		animation: error-effect 250ms ease forwards;
+
+		div.button-background {
+			background: rgba(#ff8080, .1);
+		}
+
+		div.button {
+			background: rgba(#ff8080, .2);
+		}
+	}
+
+	@keyframes error-effect {
+		0% {
+			left: 0;
+		}
+
+		33% {
+			left: 4px;
+		}
+
+		66% {
+			left: -4px;
+		}
+
+		100% {
+			left: 0;
+		}
+	}
+}

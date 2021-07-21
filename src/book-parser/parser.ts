@@ -2,7 +2,16 @@ import { loadAsync } from "jszip";
 import { FileOpenException } from "./libs/exceptions";
 import { getCleanText, TNCXChapterData } from "./libs/utils";
 import $ from "./libs/xmltool";
-import BookParserCore from "./core";
+import BookParserCore, { TBookMetadata } from "./core";
+
+export type TBook = {
+	metadata: TBookMetadata;
+	content: TBookContent[];
+};
+type TBookContent = {
+	title: string;
+	text: string[];
+};
 
 export default class BookParser extends BookParserCore {
 	public constructor (file: File | FileList | null) {
@@ -15,16 +24,19 @@ export default class BookParser extends BookParserCore {
 	}
 
 	// Stub for the method of opening an e-book
-	public async openBook () {
+	public async openBook (): Promise<TBook> {
 		const contentFilePath = await this.processContainerFile(),
 			bookData = await this.processContentFile(contentFilePath),
 			ncxChapterData = await this.processNCXChapterDataFile(bookData.ncxChapterDataFile);
 
 		const bookContent = await this.loadBookContent(bookData.bookDataOrder, ncxChapterData);
-		console.log(bookContent);
+		return {
+			metadata: bookData.metadata,
+			content: bookContent
+		};
 	}
 
-	public async loadBookContent (bookDataOrder: string[], ncxFileData: TNCXChapterData[]) {
+	public async loadBookContent (bookDataOrder: string[], ncxFileData: TNCXChapterData[]): Promise<TBookContent[]> {
 		const zipFile = await this.zipFile;
 		let bookPageDocuments: { [key: string]: Document } = {};
 

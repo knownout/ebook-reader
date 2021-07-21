@@ -3,6 +3,19 @@ import { CompressedXMLFileOpenException } from "./libs/exceptions";
 import { getCleanText, TNCXChapterData } from "./libs/utils";
 import $ from "./libs/xmltool";
 
+export type TBookMetadata = {
+	title: string;
+	description: string;
+	author: string[];
+	cover: string;
+};
+
+export type TBookContentData = {
+	metadata: TBookMetadata;
+	bookDataOrder: string[];
+	ncxChapterDataFile: string;
+};
+
 export default class BookParserCore {
 	protected readonly zipFile: Promise<JSZip>;
 	private readonly defaultMetaPath = "META-INF/container.xml";
@@ -40,7 +53,7 @@ export default class BookParserCore {
      * Method for processing the main e-book content file
      * @param path the location of the e-book content file (can be obtained from processContainerFile method)
      */
-	protected async processContentFile (path: string) {
+	protected async processContentFile (path: string): Promise<TBookContentData> {
 		const zipFile = await this.zipFile,
 			content = await this.openCompressedXMLFile(zipFile, path);
 
@@ -76,7 +89,7 @@ export default class BookParserCore {
 		}
 
 		// Represent metadata as a dictionary
-		const metadataObject = { title, description, author, cover: coverImage };
+		const metadataObject: TBookMetadata = { title, description, author, cover: coverImage };
 
 		return {
 			metadata: metadataObject,
