@@ -1,17 +1,19 @@
+@import "./keyframes.less";
+
 div.button-wrapper {
 	position: relative;
 	display: flex;
 
-	justify-content: center;
-	align-items: center;
-
 	width: fit-content;
 	height: fit-content;
 
-	transition: 200ms ease all;
-	color: #eee;
+	justify-content: center;
+	align-items: center;
 
+	transition: 200ms ease all;
 	cursor: pointer;
+
+	color: #eee;
 
 	div {
 		pointer-events: none;
@@ -23,10 +25,10 @@ div.button-wrapper {
 			left: 5px;
 		}
 		div.button {
-			background: rgba(#fff, .15);
-
 			top: -2px;
 			left: -2px;
+
+			background: rgba(#fff, .13);
 		}
 	}
 
@@ -36,10 +38,10 @@ div.button-wrapper {
 			left: 3px;
 		}
 		div.button {
-			background: rgba(#fff, .15);
-
 			top: 0;
 			left: 0;
+
+			background: rgba(#fff, .18);
 		}
 	}
 
@@ -54,34 +56,36 @@ div.button-wrapper {
 		left: 3px;
 
 		border-radius: 4px;
+		transition: inherit;
 
 		background: rgba(#fff, .05);
-		transition: inherit;
 	}
 
 	div.button {
 		position: relative;
 		display: flex;
 
-		justify-content: center;
-		align-items: center;
-
 		width: fit-content;
 		height: fit-content;
 
-		padding: 10px 12px;
+		justify-content: center;
+		align-items: center;
+
 		top: 0;
 		left: 0;
 
+		padding: 10px 12px;
 		border-radius: 4px;
-		background: rgba(#fff, .1);
 		transition: inherit;
+
+		background: rgba(#fff, .1);
 
 		i {
 			position: relative;
 			display: block;
 
 			top: -1px;
+
 			margin-right: 8px;
 		}
 	}
@@ -95,24 +99,6 @@ div.button-wrapper {
 
 		div.button {
 			background: rgba(#ff8080, .2);
-		}
-	}
-
-	@keyframes error-effect {
-		0% {
-			left: 0;
-		}
-
-		33% {
-			left: 4px;
-		}
-
-		66% {
-			left: -4px;
-		}
-
-		100% {
-			left: 0;
 		}
 	}
 }

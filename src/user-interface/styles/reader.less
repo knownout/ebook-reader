@@ -2,30 +2,26 @@ div.page-wrapper {
 	position: absolute;
 	display: flex;
 
-	top: 0;
-	left: 0;
 	width: 100%;
 	height: 100%;
+
+	top: 0;
+	left: 0;
 
 	justify-content: center;
 	align-items: center;
 
+	overflow: hidden;
+	overflow-y: auto;
+
 	&[data-flex="false"] {
 		display: block;
 	}
-
-	overflow: hidden;
-	overflow-y: auto;
 }
 
 div.content-wrapper {
 	position: relative;
 	display: flex;
-
-	flex-direction: column;
-
-	justify-content: center;
-	align-items: center;
 
 	width: 100%;
 	height: fit-content;
@@ -33,61 +29,65 @@ div.content-wrapper {
 	top: 0;
 	left: 0;
 
+	justify-content: center;
+	align-items: center;
+
+	flex-direction: column;
+
 	overflow: hidden;
+
 	padding: 20px;
+	margin-bottom: 20px;
+	line-height: 20px;
+
 	opacity: 1;
+	transition: 150ms ease all;
 
-	transition: 400ms ease all;
+	color: #eee;
 
-	&[page-state="opening"] {
-		opacity: 0;
+	&[page-state="opening"],
+	&[page-state="closing"],
+	&[page-state="closed"] {
 		transform: scale(0.98, 0.98);
+		opacity: 0;
+		pointer-events: none;
 	}
 
-	&[data-flex="false"] {
-		position: fixed;
-
-		width: 100%;
-		height: 100%;
-
-		background: red;
-	}
-
-	div.app-title {
+	div.title {
 		font-size: 24px;
-		color: #eee;
-
 		font-weight: 500;
+
 		text-align: center;
+
+		color: #eee;
 	}
 
-	article.application-lore {
+	article.text-content {
 		position: relative;
 		display: block;
 
 		width: fit-content;
-
 		max-width: 420px;
+
 		text-align: justify;
+
 		color: #eee;
 
 		p {
 			position: relative;
 			display: block;
 
+			margin: 0;
+			margin-bottom: 15px;
+
 			&::first-letter {
 				margin-left: -5px;
 			}
-
-			margin: 0;
-			margin-bottom: 15px;
 		}
-
-		margin-bottom: 20px;
-		line-height: 20px;
 
 		&::before {
 			content: attr(data-title);
+
 			position: relative;
 			display: block;
 

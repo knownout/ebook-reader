@@ -1,34 +1,43 @@
 import React, { useEffect } from "react";
 import "./styles/components.less";
 
+export type TPageState = "opened" | "opening" | "closing" | "closed";
+export interface IDefaultPageProps {
+	setState: (state: TPageState) => void;
+	state: TPageState;
+
+	children?: any;
+
+	pageRef?: any;
+}
+
 export function Button (props: {
-	className?: string;
+	children: string;
+
 	onClick?: (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => any;
-	errorEffect?: boolean;
+
+	className?: string;
+	exception?: boolean;
+
+	icon?: string;
 }) {
 	const className = [ "button-wrapper", props.className || " " ].join(" ").replace(/\s{2,}/g, " ").trim();
-	const { errorEffect, ...localProps } = { ...props };
+	const { exception: errorEffect, ...localProps } = { ...props };
 
 	return (
-		<div {...localProps} className={className} data-error={props.errorEffect}>
+		<div {...localProps} className={className} data-error={props.exception}>
 			<div className="button-background" />
 			<div className="button">
-				<i className="bi bi-journals" />
-				<span className="text">Select E-book</span>
+				{props.icon ? <i className={props.icon} /> : null}
+				<span className="text">{props.children}</span>
 			</div>
 		</div>
 	);
 }
 
-export type TPageState = "opened" | "opening" | "closing" | "closed";
-export function Page (props: {
-	children: any;
-	state: TPageState;
-	setState: (state: TPageState) => void;
-	pageRef?: any;
-}) {
+export function Page (props: IDefaultPageProps) {
 	useEffect(() => {
-		if (props.state == "opening") setTimeout(() => props.setState("opened"), 450);
+		if (props.state == "opening") setTimeout(() => props.setState("opened"), 200);
 	});
 
 	return (
